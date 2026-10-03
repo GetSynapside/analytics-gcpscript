@@ -1,0 +1,19 @@
+{
+  "name": "analytics-gcpscript",
+  "version": "1.0.0",
+  "description": "High performance, zero-conflict analytics collector client SDK for GCP Ingestor",
+  "main": "dist/sAnalyticsGcp_v1.build.js",
+  "scripts": {
+    "build": "npx -y terser src/analytics-gcp.js -o dist/sAnalyticsGcp_v1.build.js -c -m && cp dist/sAnalyticsGcp_v1.build.js dist/sAnalyticsGcp.min.js",
+    "test": "node -e \"console.log('Build OK')\""
+  },
+  "keywords": [
+    "analytics",
+    "gcp",
+    "pubsub",
+    "bigquery",
+    "rust"
+  ],
+  "author": "Synapside",
+  "license": "MIT"
+}

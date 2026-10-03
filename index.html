@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synapside GCP Analytics Client - Live Demo & Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: rgba(23, 30, 48, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #10b981;
+      --accent: #8b5cf6;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --code-bg: #030712;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem 1rem;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      margin-bottom: 0.75rem;
+    }
+
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    .card h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    pre {
+      background: var(--code-bg);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      color: #e2e8f0;
+      margin-bottom: 1rem;
+    }
+
+    button, input[type="submit"] {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.65rem 1.25rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    button:hover, input[type="submit"]:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    button.secondary {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    button.secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .interactive-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    input[type="text"], input[type="email"] {
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      color: white;
+      padding: 0.65rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    input[type="text"]:focus, input[type="email"]:focus {
+      border-color: var(--primary);
+    }
+
+    .log-box {
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.8rem;
+      height: 200px;
+      overflow-y: auto;
+      color: #34d399;
+    }
+
+    .log-entry {
+      margin-bottom: 0.35rem;
+      word-break: break-all;
+    }
+
+    .log-time {
+      color: var(--text-muted);
+    }
+  </style>
+
+  <!-- Setup sAnalyticsGcp Client -->
+  <script>
+    window.sAnalyticsGcp_project = 'project_6';
+    window.sAnalyticsGcp_api = 'https://analytics-receiver-ingestor-98880881604.us-central1.run.app';
+    window.sAnalyticsGcp = window.sAnalyticsGcp || function () {
+      (window.sAnalyticsGcp.q = window.sAnalyticsGcp.q || []).push(arguments);
+    };
+  </script>
+  <script src="./dist/sAnalyticsGcp_v1.build.js" async></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <span class="badge">🚀 GCP Serverless Ingestor</span>
+      <h1>Synapside Analytics JS SDK</h1>
+      <p class="subtitle">Cliente leve, sem dependências, com namespace isolado para execução simultânea.</p>
+    </header>
+
+    <div class="grid">
+      <!-- Snippet de Instalação -->
+      <div class="card" style="grid-column: 1 / -1;">
+        <h2>📋 Como instalar no seu site (GitHub Pages CDN)</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.75rem;">
+          Adicione o código abaixo no <code>&lt;head&gt;</code> do seu site para rodar simultaneamente com o script legado:
+        </p>
+        <pre><code>&lt;!-- Synapside Analytics (GCP Serverless) --&gt;
+&lt;script&gt;
+  window.sAnalyticsGcp_project = 'project_6'; // Seu project_code
+  window.sAnalyticsGcp_api = 'https://analytics-receiver-ingestor-98880881604.us-central1.run.app';
+  window.sAnalyticsGcp = window.sAnalyticsGcp || function () {
+    (window.sAnalyticsGcp.q = window.sAnalyticsGcp.q || []).push(arguments);
+  };
+&lt;/script&gt;
+&lt;script src="https://getsynapside.github.io/analytics-gcpscript/dist/sAnalyticsGcp_v1.build.js" async&gt;&lt;/script&gt;</code></pre>
+      </div>
+
+      <!-- Teste de Eventos -->
+      <div class="card">
+        <h2>⚡ Testar Eventos (Track & Click)</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">
+          Cliques em botões e links são capturados automaticamente. Você também pode disparar eventos customizados:
+        </p>
+        <div class="interactive-group">
+          <button id="btn-demo-click" onclick="testCustomTrack()">🎯 Disparar Custom Event</button>
+          <button id="btn-cta" class="secondary">🖱️ Testar Auto Click</button>
+        </div>
+      </div>
+
+      <!-- Teste de Identidade -->
+      <div class="card">
+        <h2>👤 Testar Identificação (Identify)</h2>
+        <form class="form-group" id="demo-identify-form" onsubmit="testIdentify(event)">
+          <input type="email" id="user-email" placeholder="seu-email@exemplo.com" required>
+          <button type="submit">🔒 Identificar Usuário</button>
+        </form>
+      </div>
+
+      <!-- Console / Event Log -->
+      <div class="card" style="grid-column: 1 / -1;">
+        <h2>📊 Monitor de Disparos em Tempo Real</h2>
+        <div class="log-box" id="log-container">
+          <div class="log-entry"><span class="log-time">[Init]</span> SDK carregado. Monitorando eventos...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function addLog(msg) {
+      const logBox = document.getElementById('log-container');
+      const time = new Date().toLocaleTimeString();
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = `<span class="log-time">[${time}]</span> ${msg}`;
+      logBox.appendChild(entry);
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function testCustomTrack() {
+      if (window.sAnalyticsGcp) {
+        window.sAnalyticsGcp('track', 'demo_button_clicked', {
+          action: 'test_click',
+          value: Math.floor(Math.random() * 100)
+        });
+        addLog('✅ Evento "demo_button_clicked" enviado ao Ingestor GCP!');
+      }
+    }
+
+    function testIdentify(e) {
+      e.preventDefault();
+      const email = document.getElementById('user-email').value;
+      if (window.sAnalyticsGcp && email) {
+        window.sAnalyticsGcp('identify', {
+          type: 'email',
+          value: email,
+          data: { tier: 'pro', source: 'github_pages_demo' }
+        });
+        addLog(`✅ Identidade (${email}) enviada ao Ingestor GCP!`);
+      }
+    }
+
+    // Monitor click events
+    document.addEventListener('click', (e) => {
+      const target = e.target.closest('button, a');
+      if (target) {
+        addLog(`🖱️ Clique capturado: &lt;${target.tagName.toLowerCase()}&gt; id="${target.id || 'none'}"`);
+      }
+    }, true);
+  </script>
+</body>
+</html>
