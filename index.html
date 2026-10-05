@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
   <title>Synapside GCP Analytics Client - Live Demo & Docs</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -195,13 +196,39 @@
     }
   </style>
 
-  <!-- Setup sAnalyticsGcp Client -->
+  <!-- Dynamic Setup sAnalyticsGcp Client -->
   <script>
-    window.sAnalyticsGcp_project = 'project_6';
-    window.sAnalyticsGcp_api = 'https://analytics-receiver-ingestor-98880881604.us-central1.run.app';
-    window.sAnalyticsGcp = window.sAnalyticsGcp || function () {
-      (window.sAnalyticsGcp.q = window.sAnalyticsGcp.q || []).push(arguments);
-    };
+    (function () {
+      // 1. Read parameters from URL search params or fallback to localStorage or defaults
+      const params = new URLSearchParams(window.location.search);
+      const storageApi = localStorage.getItem('sAnalyticsGcp_custom_api');
+      const storageProject = localStorage.getItem('sAnalyticsGcp_custom_project');
+
+      const defaultApi = 'https://analytics-receiver-ingestor-98880881604.us-central1.run.app';
+      const defaultProject = 'project_29';
+
+      const currentApi = params.get('api') || storageApi || defaultApi;
+      const currentProject = params.get('project') || storageProject || defaultProject;
+
+      window.sAnalyticsGcp_api = currentApi.replace(/\/+$/, '');
+      window.sAnalyticsGcp_project = currentProject;
+
+      // Save resolved values
+      localStorage.setItem('sAnalyticsGcp_custom_api', window.sAnalyticsGcp_api);
+      localStorage.setItem('sAnalyticsGcp_custom_project', window.sAnalyticsGcp_project);
+
+      // Keep URL search params in sync without forcing reload if not present
+      if (!params.has('api') || !params.has('project')) {
+        const url = new URL(window.location);
+        url.searchParams.set('api', window.sAnalyticsGcp_api);
+        url.searchParams.set('project', window.sAnalyticsGcp_project);
+        window.history.replaceState({}, '', url.toString());
+      }
+
+      window.sAnalyticsGcp = window.sAnalyticsGcp || function () {
+        (window.sAnalyticsGcp.q = window.sAnalyticsGcp.q || []).push(arguments);
+      };
+    })();
   </script>
   <script src="./dist/sAnalyticsGcp_v1.build.js" async></script>
 </head>
@@ -214,21 +241,51 @@
     </header>
 
     <div class="grid">
+      <!-- Configuração de Ambiente / API & Project ID -->
+      <div class="card" style="grid-column: 1 / -1; border-color: rgba(59, 130, 246, 0.4); background: rgba(30, 41, 59, 0.85);">
+        <h2>⚙️ Configuração do Ambiente de Teste</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+          Alterne rapidamente entre Local, Staging e Produção ou digite uma API e Project ID customizados. Ao salvar ou selecionar um preset, a página atualiza os parâmetros na URL (<code>?api=...&project=...</code>) e recarrega.
+        </p>
+
+        <!-- Presets -->
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+          <span style="font-size: 0.85rem; color: var(--text-muted); align-self: center; margin-right: 0.5rem;">Ambientes:</span>
+          <button type="button" class="secondary" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;" onclick="applyPreset('http://localhost:8080')">💻 Local (8080)</button>
+          <button type="button" class="secondary" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;" onclick="applyPreset('http://localhost:3000')">💻 Local (3000)</button>
+          <button type="button" class="secondary" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;" onclick="applyPreset('https://receiver-staging-98880881604.us-central1.run.app')">🧪 Staging</button>
+          <button type="button" class="secondary" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;" onclick="applyPreset('https://analytics-receiver-ingestor-98880881604.us-central1.run.app')">🌍 Produção</button>
+          <button type="button" class="secondary" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; margin-left: auto; color: #f87171; border-color: rgba(239, 68, 68, 0.3);" onclick="resetSessionStorage()">🗑️ Limpar Sessão/User UUID</button>
+        </div>
+
+        <form id="env-config-form" onsubmit="saveEnvConfig(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; align-items: flex-end;">
+          <div>
+            <label for="cfg-api" style="display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.35rem; color: #cbd5e1;">API Endpoint (Ingestor / Receiver):</label>
+            <input type="text" id="cfg-api" style="width: 100%;" placeholder="https://seu-receiver.run.app ou http://localhost:8080" required>
+          </div>
+          <div>
+            <label for="cfg-project" style="display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.35rem; color: #cbd5e1;">Project ID / Code:</label>
+            <input type="text" id="cfg-project" style="width: 100%;" placeholder="ex: project_29 ou project_dev" required>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button type="submit" style="flex: 1; justify-content: center;">💾 Aplicar & Recarregar</button>
+          </div>
+        </form>
+
+        <div style="margin-top: 0.85rem; padding: 0.6rem 0.85rem; background: rgba(15, 23, 42, 0.6); border-radius: 0.5rem; font-size: 0.8rem; color: #94a3b8; display: flex; flex-wrap: wrap; gap: 1rem;">
+          <span>Ativo no momento:</span>
+          <span><strong>API:</strong> <code id="active-api-display" style="color: #60a5fa;"></code></span>
+          <span><strong>Project:</strong> <code id="active-project-display" style="color: #a78bfa;"></code></span>
+        </div>
+      </div>
+
       <!-- Snippet de Instalação -->
       <div class="card" style="grid-column: 1 / -1;">
         <h2>📋 Como instalar no seu site (GitHub Pages CDN)</h2>
         <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.75rem;">
-          Adicione o código abaixo no <code>&lt;head&gt;</code> do seu site para rodar simultaneamente com o script legado:
+          Código de instalação gerado dinamicamente com base nas configurações ativas acima:
         </p>
-        <pre><code>&lt;!-- Synapside Analytics (GCP Serverless) --&gt;
-&lt;script&gt;
-  window.sAnalyticsGcp_project = 'project_6'; // Seu project_code
-  window.sAnalyticsGcp_api = 'https://analytics-receiver-ingestor-98880881604.us-central1.run.app';
-  window.sAnalyticsGcp = window.sAnalyticsGcp || function () {
-    (window.sAnalyticsGcp.q = window.sAnalyticsGcp.q || []).push(arguments);
-  };
-&lt;/script&gt;
-&lt;script src="https://getsynapside.github.io/analytics-gcpscript/dist/sAnalyticsGcp_v1.build.js" async&gt;&lt;/script&gt;</code></pre>
+        <pre><code id="snippet-code"></code></pre>
       </div>
 
       <!-- Teste de Eventos -->
@@ -294,6 +351,56 @@
         });
         addLog(`✅ Identidade (${email}) enviada ao Ingestor GCP!`);
       }
+    }
+
+    // Config & Environment Management
+    const apiInput = document.getElementById('cfg-api');
+    const projectInput = document.getElementById('cfg-project');
+    const apiDisplay = document.getElementById('active-api-display');
+    const projectDisplay = document.getElementById('active-project-display');
+    const snippetCode = document.getElementById('snippet-code');
+
+    apiInput.value = window.sAnalyticsGcp_api;
+    projectInput.value = window.sAnalyticsGcp_project;
+    apiDisplay.textContent = window.sAnalyticsGcp_api;
+    projectDisplay.textContent = window.sAnalyticsGcp_project;
+
+    function updateSnippet() {
+      snippetCode.textContent = `<!-- Synapside Analytics (GCP Serverless) -->\n<script>\n  window.sAnalyticsGcp_project = '${window.sAnalyticsGcp_project}';\n  window.sAnalyticsGcp_api = '${window.sAnalyticsGcp_api}';\n  window.sAnalyticsGcp = window.sAnalyticsGcp || function () {\n    (window.sAnalyticsGcp.q = window.sAnalyticsGcp.q || []).push(arguments);\n  };\n<\/script>\n<script src="https://getsynapside.github.io/analytics-gcpscript/dist/sAnalyticsGcp_v1.build.js" async><\/script>`;
+    }
+    updateSnippet();
+
+    function saveEnvConfig(e) {
+      if (e) e.preventDefault();
+      const newApi = apiInput.value.trim().replace(/\/+$/, '');
+      const newProject = projectInput.value.trim();
+
+      if (!newApi || !newProject) return;
+
+      localStorage.setItem('sAnalyticsGcp_custom_api', newApi);
+      localStorage.setItem('sAnalyticsGcp_custom_project', newProject);
+
+      const url = new URL(window.location);
+      url.searchParams.set('api', newApi);
+      url.searchParams.set('project', newProject);
+      window.location.href = url.toString();
+    }
+
+    function applyPreset(apiUrl, projectCode) {
+      apiInput.value = apiUrl;
+      if (projectCode) {
+        projectInput.value = projectCode;
+      }
+      saveEnvConfig();
+    }
+
+    function resetSessionStorage() {
+      sessionStorage.removeItem('sAnalytics_gcp_v0_userid');
+      sessionStorage.removeItem('sAnalytics_gcp_v0_session_uuid');
+      addLog('🧹 Dados de sessão local (user_uuid & session_uuid) limpos!');
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     }
 
     // Monitor click events

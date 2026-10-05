@@ -4,6 +4,7 @@
   "description": "High performance, zero-conflict analytics collector client SDK for GCP Ingestor",
   "main": "dist/sAnalyticsGcp_v1.build.js",
   "scripts": {
+    "serve": "npx -y serve -p 8080 .",
     "build": "npx -y terser src/analytics-gcp.js -o dist/sAnalyticsGcp_v1.build.js -c -m && cp dist/sAnalyticsGcp_v1.build.js dist/sAnalyticsGcp.min.js",
     "test": "node -e \"console.log('Build OK')\""
   },

@@ -10,10 +10,8 @@
 
     // 1. Configuration & Endpoints
     const defaultApiUrl = 'https://analytics-receiver-ingestor-98880881604.us-central1.run.app';
-    const isLocalhost = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
-    
-    window.sAnalyticsGcp_api = window.sAnalyticsGcp_api || (isLocalhost ? 'http://' + window.location.hostname + ':8080' : defaultApiUrl);
-    
+    window.sAnalyticsGcp_api = window.sAnalyticsGcp_api || defaultApiUrl;
+
     // Fallback to legacy project if sAnalyticsGcp_project is not explicitly set
     const projectCode = window.sAnalyticsGcp_project || window.sAnalytics_project || 'project_default';
     const storageToken = 'sAnalytics_gcp_v0_';
